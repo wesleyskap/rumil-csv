@@ -1,0 +1,21 @@
+# Binaries and test artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.txt
+profile.pprof
+
+# IDE and Editor directories
+.idea/
+.vscode/
+.gemini/
+*.swp
+*.swo
+
+# Temporary and log files
+*.tmp
+*.log
