@@ -21,3 +21,25 @@ type ParseError struct {
 	Line    int64  // 8 bytes
 	Column  int    // 8 bytes (on 64-bit platforms)
 }
+// Error returns a formatted error message detailing line and column location.
+func (e *ParseError) Error() string {
+	if e.Err != nil {
+		return fmt.Sprintf("line %d, col %d: %s: %v", e.Line, e.Column, e.Message, e.Err)
+	}
+	return fmt.Sprintf("line %d, col %d: %s", e.Line, e.Column, e.Message)
+}
+
+// Unwrap returns the underlying error causing the parse failure.
+func (e *ParseError) Unwrap() error {
+	return e.Err
+}
+
+// newParseError constructs an aligned ParseError instance.
+func newParseError(line int64, col int, msg string, err error) *ParseError {
+	return &ParseError{
+		Message: msg,
+		Err:     err,
+		Line:    line,
+		Column:  col,
+	}
+}
