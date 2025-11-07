@@ -29,3 +29,20 @@ func defaultReaderConfig() ReaderConfig {
 		ReuseRecord:      true,
 	}
 }
+// WithDelimiter sets a custom field delimiter rune.
+func WithDelimiter(delim rune) Option {
+	return func(c *ReaderConfig) {
+		if delim != 0 {
+			c.Delimiter = delim
+		}
+	}
+}
+
+// WithQuote sets a custom quotation rune.
+func WithQuote(quote rune) Option {
+	return func(c *ReaderConfig) {
+		if quote != 0 {
+			c.Quote = quote
+		}
+	}
+}
