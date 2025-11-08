@@ -46,3 +46,16 @@ func WithQuote(quote rune) Option {
 		}
 	}
 }
+// WithComment sets an optional comment character indicating lines to skip.
+func WithComment(comment rune) Option {
+	return func(c *ReaderConfig) {
+		c.Comment = comment
+	}
+}
+
+// WithTrimLeadingSpace toggles stripping of leading spaces on fields.
+func WithTrimLeadingSpace(trim bool) Option {
+	return func(c *ReaderConfig) {
+		c.TrimLeadingSpace = trim
+	}
+}
