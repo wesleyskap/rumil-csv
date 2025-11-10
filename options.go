@@ -59,3 +59,18 @@ func WithTrimLeadingSpace(trim bool) Option {
 		c.TrimLeadingSpace = trim
 	}
 }
+// WithLazyQuotes allows non-RFC compliant unquoted quotes inside fields.
+func WithLazyQuotes(lazy bool) Option {
+	return func(c *ReaderConfig) {
+		c.LazyQuotes = lazy
+	}
+}
+
+// WithBufferSize configures the internal stream read buffer size.
+func WithBufferSize(size int) Option {
+	return func(c *ReaderConfig) {
+		if size > 512 {
+			c.BufferSize = size
+		}
+	}
+}
