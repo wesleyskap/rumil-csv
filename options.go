@@ -74,3 +74,9 @@ func WithBufferSize(size int) Option {
 		}
 	}
 }
+// WithReuseRecord controls whether the Record buffer is reused across Scan calls.
+func WithReuseRecord(reuse bool) Option {
+	return func(c *ReaderConfig) {
+		c.ReuseRecord = reuse
+	}
+}
