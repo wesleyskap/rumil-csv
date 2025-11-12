@@ -15,3 +15,18 @@ type Record struct {
 	numCols int    // 8 bytes
 	hasEsc  bool   // 1 byte
 }
+// Len returns the count of columns detected in the current record.
+func (r *Record) Len() int {
+	if r == nil {
+		return 0
+	}
+	return r.numCols
+}
+
+// Line returns the source input line number for this record.
+func (r *Record) Line() int64 {
+	if r == nil {
+		return 0
+	}
+	return r.lineNum
+}
