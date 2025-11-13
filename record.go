@@ -30,3 +30,12 @@ func (r *Record) Line() int64 {
 	}
 	return r.lineNum
 }
+// At returns the raw byte slice for column index i without allocating heap memory.
+func (r *Record) At(i int) []byte {
+	if r == nil || i < 0 || i >= r.numCols {
+		return nil
+	}
+	start := r.colOffs[i]
+	end := start + r.colLens[i]
+	return r.raw[start:end]
+}
