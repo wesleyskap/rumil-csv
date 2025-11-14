@@ -39,3 +39,11 @@ func (r *Record) At(i int) []byte {
 	end := start + r.colLens[i]
 	return r.raw[start:end]
 }
+// StringAt returns the column content as a standard Go string.
+func (r *Record) StringAt(i int) string {
+	b := r.At(i)
+	if b == nil {
+		return ""
+	}
+	return string(b)
+}
