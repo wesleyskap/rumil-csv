@@ -47,3 +47,15 @@ func (r *Record) StringAt(i int) string {
 	}
 	return string(b)
 }
+// IntAt parses column index i as a 64-bit signed integer.
+func (r *Record) IntAt(i int) (int64, error) {
+	b := r.At(i)
+	if b == nil {
+		return 0, newParseError(r.lineNum, i+1, "column index out of bounds", nil)
+	}
+	v, err := strconv.ParseInt(string(b), 10, 64)
+	if err != nil {
+		return 0, newParseError(r.lineNum, i+1, "failed to parse integer", err)
+	}
+	return v, nil
+}
