@@ -59,3 +59,15 @@ func (r *Record) IntAt(i int) (int64, error) {
 	}
 	return v, nil
 }
+// FloatAt parses column index i as a 64-bit floating point number.
+func (r *Record) FloatAt(i int) (float64, error) {
+	b := r.At(i)
+	if b == nil {
+		return 0, newParseError(r.lineNum, i+1, "column index out of bounds", nil)
+	}
+	v, err := strconv.ParseFloat(string(b), 64)
+	if err != nil {
+		return 0, newParseError(r.lineNum, i+1, "failed to parse float", err)
+	}
+	return v, nil
+}
