@@ -71,3 +71,15 @@ func (r *Record) FloatAt(i int) (float64, error) {
 	}
 	return v, nil
 }
+// BoolAt parses column index i as a boolean value.
+func (r *Record) BoolAt(i int) (bool, error) {
+	b := r.At(i)
+	if b == nil {
+		return false, newParseError(r.lineNum, i+1, "column index out of bounds", nil)
+	}
+	v, err := strconv.ParseBool(string(b))
+	if err != nil {
+		return false, newParseError(r.lineNum, i+1, "failed to parse boolean", err)
+	}
+	return v, nil
+}
