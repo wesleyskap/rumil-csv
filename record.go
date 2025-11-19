@@ -83,3 +83,26 @@ func (r *Record) BoolAt(i int) (bool, error) {
 	}
 	return v, nil
 }
+// Fields returns all columns as a slice of byte slices referencing the internal buffer.
+func (r *Record) Fields() [][]byte {
+	if r == nil || r.numCols == 0 {
+		return nil
+	}
+	out := make([][]byte, r.numCols)
+	for i := 0; i < r.numCols; i++ {
+		out[i] = r.At(i)
+	}
+	return out
+}
+
+// Strings allocates and returns all columns as Go strings.
+func (r *Record) Strings() []string {
+	if r == nil || r.numCols == 0 {
+		return nil
+	}
+	out := make([]string, r.numCols)
+	for i := 0; i < r.numCols; i++ {
+		out[i] = r.StringAt(i)
+	}
+	return out
+}
