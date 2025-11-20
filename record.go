@@ -106,3 +106,24 @@ func (r *Record) Strings() []string {
 	}
 	return out
 }
+// Clone creates an independent heap copy of the record with isolated byte slices.
+func (r *Record) Clone() *Record {
+	if r == nil {
+		return nil
+	}
+	rawCopy := make([]byte, len(r.raw))
+	copy(rawCopy, r.raw)
+	offsCopy := make([]int, r.numCols)
+	lensCopy := make([]int, r.numCols)
+	copy(offsCopy, r.colOffs[:r.numCols])
+	copy(lensCopy, r.colLens[:r.numCols])
+	return &Record{
+		raw:     rawCopy,
+		colOffs: offsCopy,
+		colLens: lensCopy,
+		err:     r.err,
+		lineNum: r.lineNum,
+		numCols: r.numCols,
+		hasEsc:  r.hasEsc,
+	}
+}
