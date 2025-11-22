@@ -127,3 +127,10 @@ func (r *Record) Clone() *Record {
 		hasEsc:  r.hasEsc,
 	}
 }
+// Raw returns the underlying continuous byte buffer slice for low-level inspection.
+func (r *Record) Raw() []byte {
+	if r == nil {
+		return nil
+	}
+	return r.raw
+}
