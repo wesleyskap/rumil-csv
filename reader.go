@@ -37,3 +37,15 @@ func NewReader(r io.Reader, opts ...Option) *Reader {
 	}
 	return rd
 }
+// Reset clears reader state and binds to a new data stream.
+func (r *Reader) Reset(src io.Reader) {
+	r.src = src
+	r.r = 0
+	r.w = 0
+	r.line = 0
+	r.err = nil
+	r.eof = false
+	r.colOffs = r.colOffs[:0]
+	r.colLens = r.colLens[:0]
+	r.scratch = r.scratch[:0]
+}
