@@ -49,3 +49,25 @@ func (r *Reader) Reset(src io.Reader) {
 	r.colLens = r.colLens[:0]
 	r.scratch = r.scratch[:0]
 }
+// fill loads incoming bytes from the underlying reader into the sliding buffer.
+func (r *Reader) fill() error {
+	if r.r > 0 {
+		n := copy(r.buf, r.buf[r.r:r.w])
+		r.w = n
+		r.r = 0
+	}
+	if r.w >= len(r.buf) {
+		r.growBuffer()
+	}
+	n, err := r.src.Read(r.buf[r.w:])
+	r.w += n
+	if err != nil {
+		if err == io.EOF {
+			r.eof = true
+			return nil
+		}
+		r.err = err
+		return err
+	}
+	return nil
+}
