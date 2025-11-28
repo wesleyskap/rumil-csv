@@ -71,3 +71,13 @@ func (r *Reader) fill() error {
 	}
 	return nil
 }
+// growBuffer expands the internal buffer up to configured maximum record size.
+func (r *Reader) growBuffer() {
+	newCap := len(r.buf) * 2
+	if newCap > r.cfg.MaxRecordSize {
+		newCap = r.cfg.MaxRecordSize
+	}
+	newBuf := make([]byte, newCap)
+	copy(newBuf, r.buf[:r.w])
+	r.buf = newBuf
+}
