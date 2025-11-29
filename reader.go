@@ -81,3 +81,13 @@ func (r *Reader) growBuffer() {
 	copy(newBuf, r.buf[:r.w])
 	r.buf = newBuf
 }
+// consumeNewline increments line counter and moves past CRLF or LF.
+func (r *Reader) consumeNewline() {
+	r.line++
+	if r.r < r.w && r.buf[r.r] == '\r' {
+		r.r++
+	}
+	if r.r < r.w && r.buf[r.r] == '\n' {
+		r.r++
+	}
+}
