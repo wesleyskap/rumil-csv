@@ -91,3 +91,31 @@ func (r *Reader) consumeNewline() {
 		r.r++
 	}
 }
+// skipCommentOrEmpty advances past comments and blank lines.
+func (r *Reader) skipCommentOrEmpty() bool {
+	if r.r >= r.w {
+		return false
+	}
+	b := r.buf[r.r]
+	if b == '\r' || b == '\n' {
+		r.consumeNewline()
+		return true
+	}
+	if r.cfg.Comment != 0 && rune(b) == r.cfg.Comment {
+		r.consumeUntilNewline()
+		return true
+	}
+	return false
+}
+
+// consumeUntilNewline skips entire comment lines until the line break.
+func (r *Reader) consumeUntilNewline() {
+	r.line++
+	for r.r < r.w {
+		b := r.buf[r.r]
+		r.r++
+		if b == '\n' {
+			return
+		}
+	}
+}
