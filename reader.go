@@ -119,3 +119,12 @@ func (r *Reader) consumeUntilNewline() {
 		}
 	}
 }
+// trimLeadingWhitespace strips spaces if TrimLeadingSpace is enabled.
+func (r *Reader) trimLeadingWhitespace() {
+	if !r.cfg.TrimLeadingSpace {
+		return
+	}
+	for r.r < r.w && (r.buf[r.r] == ' ' || r.buf[r.r] == '\t') {
+		r.r++
+	}
+}
