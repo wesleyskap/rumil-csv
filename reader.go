@@ -128,3 +128,32 @@ func (r *Reader) trimLeadingWhitespace() {
 		r.r++
 	}
 }
+// scanUnquotedField parses bytes up to the delimiter or newline.
+func (r *Reader) scanUnquotedField(delim byte) (bool, bool, error) {
+	start := r.r
+	for {
+		if r.r >= r.w {
+			if r.eof {
+				r.scratch = append(r.scratch, r.buf[start:r.r]...)
+				return false, true, nil
+			}
+			r.scratch = append(r.scratch, r.buf[start:r.r]...)
+			if err := r.fill(); err != nil {
+				return false, false, err
+			}
+			start = r.r
+		}
+		b := r.buf[r.r]
+		if b == delim {
+			r.scratch = append(r.scratch, r.buf[start:r.r]...)
+			r.r++
+			return false, false, nil
+		}
+		if b == '\r' || b == '\n' {
+			r.scratch = append(r.scratch, r.buf[start:r.r]...)
+			r.consumeNewline()
+			return false, true, nil
+		}
+		r.r++
+	}
+}
