@@ -157,3 +157,31 @@ func (r *Reader) scanUnquotedField(delim byte) (bool, bool, error) {
 		r.r++
 	}
 }
+// scanQuotedField parses RFC 4180 quoted bytes with double-quote escaping.
+func (r *Reader) scanQuotedField(delim, quote byte) (bool, bool, error) {
+	r.r++ // Skip opening quote
+	hasEsc := false
+	for {
+		if r.r >= r.w {
+			if r.eof {
+				return false, false, newParseError(r.line, len(r.colOffs)+1, "unterminated quoted field", ErrQuote)
+			}
+			if err := r.fill(); err != nil {
+				return false, false, err
+			}
+		}
+		b := r.buf[r.r]
+		if b == quote {
+			r.r++
+			if r.r < r.w && r.buf[r.r] == quote {
+				r.scratch = append(r.scratch, quote)
+				r.r++
+				hasEsc = true
+				continue
+			}
+			return r.consumeAfterQuote(delim, hasEsc)
+		}
+		r.scratch = append(r.scratch, b)
+		r.r++
+	}
+}
