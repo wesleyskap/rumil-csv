@@ -185,3 +185,18 @@ func (r *Reader) scanQuotedField(delim, quote byte) (bool, bool, error) {
 		r.r++
 	}
 }
+// consumeAfterQuote processes trailing characters following the closing quote.
+func (r *Reader) consumeAfterQuote(delim byte, hasEsc bool) (bool, bool, error) {
+	for r.r < r.w && r.buf[r.r] != delim && r.buf[r.r] != '\r' && r.buf[r.r] != '\n' {
+		r.r++
+	}
+	if r.r >= r.w && r.eof {
+		return hasEsc, true, nil
+	}
+	if r.r < r.w && r.buf[r.r] == delim {
+		r.r++
+		return hasEsc, false, nil
+	}
+	r.consumeNewline()
+	return hasEsc, true, nil
+}
