@@ -200,3 +200,46 @@ func (r *Reader) consumeAfterQuote(delim byte, hasEsc bool) (bool, bool, error) 
 	r.consumeNewline()
 	return hasEsc, true, nil
 }
+// parseRecord parses fields from the buffer into the current Record.
+func (r *Reader) parseRecord() (bool, error) {
+	r.colOffs = r.colOffs[:0]
+	r.colLens = r.colLens[:0]
+	r.scratch = r.scratch[:0]
+	r.line++
+	delim := byte(r.cfg.Delimiter)
+	quote := byte(r.cfg.Quote)
+	for {
+		fieldStart := len(r.scratch)
+		hasQuote, lastField, err := r.scanField(delim, quote)
+		if err != nil {
+			return false, err
+		}
+		fieldLen := len(r.scratch) - fieldStart
+		r.colOffs = append(r.colOffs, fieldStart)
+		r.colLens = append(r.colLens, fieldLen)
+		if lastField {
+			r.buildRecord(hasQuote)
+			return true, nil
+		}
+	}
+}
+
+// scanField extracts a single column handling optional quotation and escaping.
+func (r *Reader) scanField(delim, quote byte) (bool, bool, error) {
+	r.trimLeadingWhitespace()
+	if r.r < r.w && r.buf[r.r] == quote {
+		return r.scanQuotedField(delim, quote)
+	}
+	return r.scanUnquotedField(delim)
+}
+
+// buildRecord updates the current record structure with parsed offsets.
+func (r *Reader) buildRecord(hasEsc bool) {
+	r.currRecord.raw = r.scratch
+	r.currRecord.colOffs = r.colOffs
+	r.currRecord.colLens = r.colLens
+	r.currRecord.lineNum = r.line
+	r.currRecord.numCols = len(r.colOffs)
+	r.currRecord.hasEsc = hasEsc
+	r.currRecord.err = nil
+}
