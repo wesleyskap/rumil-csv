@@ -243,3 +243,33 @@ func (r *Reader) buildRecord(hasEsc bool) {
 	r.currRecord.hasEsc = hasEsc
 	r.currRecord.err = nil
 }
+// Scan advances the reader to the next available record in the stream.
+func (r *Reader) Scan() bool {
+	if r.err != nil || (r.eof && r.r >= r.w) {
+		return false
+	}
+	for {
+		if r.r >= r.w {
+			if err := r.fill(); err != nil {
+				return false
+			}
+			if r.eof && r.r >= r.w {
+				return false
+			}
+		}
+		if r.skipCommentOrEmpty() {
+			continue
+		}
+		if r.eof && r.r >= r.w {
+			return false
+		}
+		found, err := r.parseRecord()
+		if err != nil {
+			r.err = err
+			return false
+		}
+		if found {
+			return true
+		}
+	}
+}
