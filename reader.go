@@ -273,3 +273,15 @@ func (r *Reader) Scan() bool {
 		}
 	}
 }
+// Record returns the currently scanned record without heap allocations.
+func (r *Reader) Record() *Record {
+	return &r.currRecord
+}
+
+// Err returns the first non-EOF error encountered during scanning.
+func (r *Reader) Err() error {
+	if r.err == io.EOF {
+		return nil
+	}
+	return r.err
+}
