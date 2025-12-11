@@ -65,3 +65,43 @@ func TestReaderSimpleUnquoted(t *testing.T) {
 		t.Fatalf("unexpected error: %v", r.Err())
 	}
 }
+func TestReaderQuotedFieldsAndEscaping(t *testing.T) {
+	input := "header1,header2\n\"val,with,comma\",\"val \"\"with\"\" quotes\"\n"
+	r := rumil.NewReader(strings.NewReader(input))
+
+	if !r.Scan() {
+		t.Fatalf("failed scanning header: %v", r.Err())
+	}
+	if !r.Scan() {
+		t.Fatalf("failed scanning data: %v", r.Err())
+	}
+
+	rec := r.Record()
+	if rec.StringAt(0) != "val,with,comma" {
+		t.Fatalf("expected comma content, got %q", rec.StringAt(0))
+	}
+	if rec.StringAt(1) != "val \"with\" quotes" {
+		t.Fatalf("expected escaped quote content, got %q", rec.StringAt(1))
+	}
+}
+
+func TestReaderMultilineQuotes(t *testing.T) {
+	input := "a,b\n\"line 1\nline 2\",c\n"
+	r := rumil.NewReader(strings.NewReader(input))
+
+	if !r.Scan() {
+		t.Fatalf("failed scanning header: %v", r.Err())
+	}
+	if !r.Scan() {
+		t.Fatalf("failed scanning multiline data: %v", r.Err())
+	}
+
+	rec := r.Record()
+	expected := "line 1\nline 2"
+	if rec.StringAt(0) != expected {
+		t.Fatalf("expected multiline %q, got %q", expected, rec.StringAt(0))
+	}
+	if rec.StringAt(1) != "c" {
+		t.Fatalf("expected c, got %q", rec.StringAt(1))
+	}
+}
