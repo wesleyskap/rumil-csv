@@ -105,3 +105,39 @@ func TestReaderMultilineQuotes(t *testing.T) {
 		t.Fatalf("expected c, got %q", rec.StringAt(1))
 	}
 }
+func TestReaderCustomDelimiterAndComments(t *testing.T) {
+	input := "# Leading comment\nitem;qty;price;active\nSword;10;120.50;true\n# Trailing comment\nShield;5;85.00;false\n"
+	r := rumil.NewReader(
+		strings.NewReader(input),
+		rumil.WithDelimiter(';'),
+		rumil.WithComment('#'),
+	)
+
+	if !r.Scan() {
+		t.Fatalf("failed scanning header: %v", r.Err())
+	}
+	if !r.Scan() {
+		t.Fatalf("failed scanning row 1: %v", r.Err())
+	}
+	rec1 := r.Record()
+	price, err := rec1.FloatAt(2)
+	if err != nil || price != 120.50 {
+		t.Fatalf("expected price 120.50, got %f, err: %v", price, err)
+	}
+	active, err := rec1.BoolAt(3)
+	if err != nil || !active {
+		t.Fatalf("expected active true, got %v, err: %v", active, err)
+	}
+
+	if !r.Scan() {
+		t.Fatalf("failed scanning row 2: %v", r.Err())
+	}
+	rec2 := r.Record()
+	if rec2.StringAt(0) != "Shield" {
+		t.Fatalf("expected Shield, got %s", rec2.StringAt(0))
+	}
+
+	if r.Scan() {
+		t.Fatalf("unexpected extra row")
+	}
+}
