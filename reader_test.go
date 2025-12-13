@@ -141,3 +141,17 @@ func TestReaderCustomDelimiterAndComments(t *testing.T) {
 		t.Fatalf("unexpected extra row")
 	}
 }
+func TestReaderUnterminatedQuoteError(t *testing.T) {
+	input := "valid,header\n\"unterminated quote,content\n"
+	r := rumil.NewReader(strings.NewReader(input))
+
+	if !r.Scan() {
+		t.Fatalf("failed to scan header")
+	}
+	if r.Scan() {
+		t.Fatalf("expected scan to fail on unterminated quote")
+	}
+	if r.Err() == nil {
+		t.Fatalf("expected error on unterminated quote, got nil")
+	}
+}
