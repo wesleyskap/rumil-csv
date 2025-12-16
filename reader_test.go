@@ -155,3 +155,25 @@ func TestReaderUnterminatedQuoteError(t *testing.T) {
 		t.Fatalf("expected error on unterminated quote, got nil")
 	}
 }
+func TestReaderIteratorAll(t *testing.T) {
+	input := "1\n2\n3\n4\n"
+	r := rumil.NewReader(strings.NewReader(input))
+
+	count := 0
+	for rec, err := range r.All() {
+		if err != nil {
+			t.Fatalf("iterator error: %v", err)
+		}
+		count++
+		val, _ := rec.IntAt(0)
+		if val != int64(count) {
+			t.Fatalf("expected %d, got %d", count, val)
+		}
+		if count == 2 {
+			break
+		}
+	}
+	if count != 2 {
+		t.Fatalf("expected early break at count 2, got %d", count)
+	}
+}
