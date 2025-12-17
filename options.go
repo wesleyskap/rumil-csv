@@ -80,3 +80,23 @@ func WithReuseRecord(reuse bool) Option {
 		c.ReuseRecord = reuse
 	}
 }
+// WriterConfig holds settings for stream CSV formatting.
+type WriterConfig struct {
+	BufferSize int  // 8 bytes
+	Delimiter  rune // 4 bytes
+	Quote      rune // 4 bytes
+	AlwaysQuote bool // 1 byte
+}
+
+// WriterOption defines a functional option for configuring a Writer.
+type WriterOption func(*WriterConfig)
+
+// defaultWriterConfig provides standard RFC 4180 writing settings.
+func defaultWriterConfig() WriterConfig {
+	return WriterConfig{
+		BufferSize:  32 * 1024,
+		Delimiter:   ',',
+		Quote:       '"',
+		AlwaysQuote: false,
+	}
+}
