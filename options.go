@@ -100,3 +100,27 @@ func defaultWriterConfig() WriterConfig {
 		AlwaysQuote: false,
 	}
 }
+// WithWriterDelimiter configures the delimiter used between fields.
+func WithWriterDelimiter(delim rune) WriterOption {
+	return func(c *WriterConfig) {
+		if delim != 0 {
+			c.Delimiter = delim
+		}
+	}
+}
+
+// WithWriterQuote configures the quotation character used for escaped fields.
+func WithWriterQuote(quote rune) WriterOption {
+	return func(c *WriterConfig) {
+		if quote != 0 {
+			c.Quote = quote
+		}
+	}
+}
+
+// WithAlwaysQuote forces quotes around all output fields.
+func WithAlwaysQuote(always bool) WriterOption {
+	return func(c *WriterConfig) {
+		c.AlwaysQuote = always
+	}
+}
