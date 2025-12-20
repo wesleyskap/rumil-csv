@@ -47,3 +47,30 @@ func (w *Writer) Flush() error {
 	w.err = err
 	return err
 }
+// appendField formats and appends a single field, applying RFC 4180 quotes when necessary.
+func (w *Writer) appendField(field []byte, delim, quote byte) {
+	if !w.cfg.AlwaysQuote && !w.needsQuotes(field, delim, quote) {
+		w.buf = append(w.buf, field...)
+		return
+	}
+	w.buf = append(w.buf, quote)
+	for _, b := range field {
+		if b == quote {
+			w.buf = append(w.buf, quote, quote)
+		} else {
+			w.buf = append(w.buf, b)
+		}
+	}
+	w.buf = append(w.buf, quote)
+}
+
+// needsQuotes checks whether a field contains delimiter, quote, or newline characters.
+func (w *Writer) needsQuotes(field []byte, delim, quote byte) bool {
+	if len(field) == 0 {
+		return false
+	}
+	return bytes.IndexByte(field, delim) >= 0 ||
+		bytes.IndexByte(field, quote) >= 0 ||
+		bytes.IndexByte(field, '\r') >= 0 ||
+		bytes.IndexByte(field, '\n') >= 0
+}
