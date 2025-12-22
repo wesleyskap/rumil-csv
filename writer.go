@@ -74,3 +74,42 @@ func (w *Writer) needsQuotes(field []byte, delim, quote byte) bool {
 		bytes.IndexByte(field, '\r') >= 0 ||
 		bytes.IndexByte(field, '\n') >= 0
 }
+// WriteRow writes a single row of byte slice fields followed by CRLF.
+func (w *Writer) WriteRow(fields ...[]byte) error {
+	if w.err != nil {
+		return w.err
+	}
+	delim := byte(w.cfg.Delimiter)
+	quote := byte(w.cfg.Quote)
+	for i, f := range fields {
+		if i > 0 {
+			w.buf = append(w.buf, delim)
+		}
+		w.appendField(f, delim, quote)
+	}
+	w.buf = append(w.buf, '\r', '\n')
+	if len(w.buf) >= cap(w.buf) {
+		return w.Flush()
+	}
+	return nil
+}
+
+// WriteStringRow writes a single row of string fields followed by CRLF.
+func (w *Writer) WriteStringRow(fields ...string) error {
+	if w.err != nil {
+		return w.err
+	}
+	delim := byte(w.cfg.Delimiter)
+	quote := byte(w.cfg.Quote)
+	for i, f := range fields {
+		if i > 0 {
+			w.buf = append(w.buf, delim)
+		}
+		w.appendField([]byte(f), delim, quote)
+	}
+	w.buf = append(w.buf, '\r', '\n')
+	if len(w.buf) >= cap(w.buf) {
+		return w.Flush()
+	}
+	return nil
+}
