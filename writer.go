@@ -113,3 +113,22 @@ func (w *Writer) WriteStringRow(fields ...string) error {
 	}
 	return nil
 }
+// WriteAll writes multiple rows of byte fields and flushes to the destination.
+func (w *Writer) WriteAll(records [][][]byte) error {
+	for _, rec := range records {
+		if err := w.WriteRow(rec...); err != nil {
+			return err
+		}
+	}
+	return w.Flush()
+}
+
+// WriteStringAll writes multiple string rows and executes a final flush.
+func (w *Writer) WriteStringAll(records [][]string) error {
+	for _, rec := range records {
+		if err := w.WriteStringRow(rec...); err != nil {
+			return err
+		}
+	}
+	return w.Flush()
+}
