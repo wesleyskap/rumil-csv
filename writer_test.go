@@ -47,3 +47,49 @@ func TestWriterQuotingTriggers(t *testing.T) {
 		t.Fatalf("unexpected escaped output: %q, expected %q", buf.String(), expected)
 	}
 }
+func TestWriterAlwaysQuote(t *testing.T) {
+	var buf bytes.Buffer
+	w := rumil.NewWriter(&buf, rumil.WithAlwaysQuote(true))
+
+	err := w.WriteStringRow("a", "b", "c")
+	if err != nil {
+		t.Fatalf("failed writing: %v", err)
+	}
+	if err := w.Flush(); err != nil {
+		t.Fatalf("failed flush: %v", err)
+	}
+
+	expected := "\"a\",\"b\",\"c\"\r\n"
+	if buf.String() != expected {
+		t.Fatalf("expected always quoted: %q, got: %q", expected, buf.String())
+	}
+}
+
+func TestWriterWriteAll(t *testing.T) {
+	var buf bytes.Buffer
+	w := rumil.NewWriter(&buf)
+
+	rows := [][]string{
+		{"num", "label"},
+		{"100", "first"},
+		{"200", "second"},
+	}
+
+	if err := w.WriteStringAll(rows); err != nil {
+		t.Fatalf("failed WriteStringAll: %v", err)
+	}
+
+	expected := "num,label\r\n100,first\r\n200,second\r\n"
+	if buf.String() != expected {
+		t.Fatalf("unexpected output: %q", buf.String())
+	}
+
+	r := rumil.NewReader(strings.NewReader(buf.String()))
+	rowCount := 0
+	for r.Scan() {
+		rowCount++
+	}
+	if rowCount != 3 {
+		t.Fatalf("expected 3 roundtrip rows, read %d", rowCount)
+	}
+}
