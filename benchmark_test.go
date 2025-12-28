@@ -73,3 +73,16 @@ func BenchmarkRumilWriter(b *testing.B) {
 		_ = w.Flush()
 	}
 }
+func BenchmarkRumilScanRecord(b *testing.B) {
+	data := generateBenchmarkCSV(b.N + 10)
+	r := rumil.NewReader(bytes.NewReader(data))
+	b.ResetTimer()
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		if !r.Scan() {
+			break
+		}
+		_ = r.Record().At(0)
+	}
+}
